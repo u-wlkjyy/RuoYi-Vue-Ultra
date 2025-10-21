@@ -1,23 +1,23 @@
 <template>
   <div class="component-upload-image">
     <el-upload
-      multiple
-      :disabled="disabled"
-      :action="uploadImgUrl"
-      list-type="picture-card"
-      :on-success="handleUploadSuccess"
-      :before-upload="handleBeforeUpload"
-      :data="data"
-      :limit="limit"
-      :on-error="handleUploadError"
-      :on-exceed="handleExceed"
-      ref="imageUpload"
-      :before-remove="handleDelete"
-      :show-file-list="true"
-      :headers="headers"
-      :file-list="fileList"
-      :on-preview="handlePictureCardPreview"
-      :class="{ hide: fileList.length >= limit }"
+        multiple
+        :disabled="disabled"
+        :action="uploadImgUrl"
+        list-type="picture-card"
+        :on-success="handleUploadSuccess"
+        :before-upload="handleBeforeUpload"
+        :data="data"
+        :limit="limit"
+        :on-error="handleUploadError"
+        :on-exceed="handleExceed"
+        ref="imageUpload"
+        :before-remove="handleDelete"
+        :show-file-list="true"
+        :headers="headers"
+        :file-list="fileList"
+        :on-preview="handlePictureCardPreview"
+        :class="{ hide: fileList.length >= limit }"
     >
       <el-icon class="avatar-uploader-icon"><plus /></el-icon>
     </el-upload>
@@ -33,16 +33,97 @@
       的文件
     </div>
 
+    <!-- 从图库选择按钮 -->
+    <el-button
+        v-if="!disabled && fileList.length < limit"
+        type="primary"
+        plain
+        size="small"
+        style="margin-top: 10px;"
+        @click="openGallery"
+    >
+      <el-icon><Picture /></el-icon> 从图库选择
+    </el-button>
+
     <el-dialog
-      v-model="dialogVisible"
-      title="预览"
-      width="800px"
-      append-to-body
+        v-model="dialogVisible"
+        title="预览"
+        width="800px"
+        append-to-body
     >
       <img
-        :src="dialogImageUrl"
-        style="display: block; max-width: 100%; margin: 0 auto"
+          :src="dialogImageUrl"
+          style="display: block; max-width: 100%; margin: 0 auto"
       />
+    </el-dialog>
+
+    <!-- 图库选择对话框 -->
+    <el-dialog
+        v-model="galleryVisible"
+        title="选择图片"
+        width="80%"
+        append-to-body
+        destroy-on-close
+    >
+      <div class="gallery-container">
+        <!-- 搜索栏 -->
+        <el-input
+            v-model="searchKeyword"
+            placeholder="搜索图片名称"
+            clearable
+            style="margin-bottom: 20px;"
+            @keyup.enter="searchGallery"
+        >
+          <template #append>
+            <el-button :icon="Search" @click="searchGallery" />
+          </template>
+        </el-input>
+
+        <!-- 图片网格 -->
+        <div v-loading="galleryLoading" class="image-grid">
+          <div
+              v-for="image in galleryImages"
+              :key="image.filePath"
+              class="image-item"
+              :class="{ selected: selectedImages.includes(image.filePath) }"
+              @click="toggleImageSelection(image)"
+          >
+            <img :src="image.url" :alt="image.fileName" />
+            <div class="image-info">
+              <div class="image-name" :title="image.fileName">{{ image.fileName }}</div>
+              <div class="image-size">{{ image.sizeFormatted }}</div>
+            </div>
+            <div v-if="selectedImages.includes(image.filePath)" class="selected-mark">
+              <el-icon><Select /></el-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- 空状态 -->
+        <el-empty v-if="!galleryLoading && galleryImages.length === 0" description="暂无图片" />
+
+        <!-- 分页 -->
+        <el-pagination
+            v-if="galleryTotal > 0"
+            v-model:current-page="galleryPageNum"
+            v-model:page-size="galleryPageSize"
+            :total="galleryTotal"
+            :page-sizes="[20, 40, 60, 100]"
+            layout="total, sizes, prev, pager, next, jumper"
+            @current-change="loadGalleryImages"
+            @size-change="loadGalleryImages"
+            style="margin-top: 20px; justify-content: center;"
+        />
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="galleryVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmSelection">
+            确定选择 ({{ selectedImages.length }})
+          </el-button>
+        </span>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -51,6 +132,8 @@
 import { getToken } from "@/utils/auth"
 import { isExternal } from "@/utils/validate"
 import Sortable from 'sortablejs'
+import { getImageList } from "@/api/filesystem"
+import { Search, Select, Picture } from '@element-plus/icons-vue'
 
 const props = defineProps({
   modelValue: [String, Object, Array],
@@ -106,8 +189,18 @@ const uploadImgUrl = ref(import.meta.env.VITE_APP_BASE_API + props.action) // �
 const headers = ref({ Authorization: "Bearer " + getToken() })
 const fileList = ref([])
 const showTip = computed(
-  () => props.isShowTip && (props.fileType || props.fileSize)
+    () => props.isShowTip && (props.fileType || props.fileSize)
 )
+
+// 图库相关状态
+const galleryVisible = ref(false)
+const galleryLoading = ref(false)
+const galleryImages = ref([])
+const selectedImages = ref([])
+const searchKeyword = ref('')
+const galleryPageNum = ref(1)
+const galleryPageSize = ref(20)
+const galleryTotal = ref(0)
 
 watch(() => props.modelValue, val => {
   if (val) {
@@ -229,6 +322,78 @@ function listToString(list, separator) {
   return strs != "" ? strs.substr(0, strs.length - 1) : ""
 }
 
+// 打开图库
+function openGallery() {
+  galleryVisible.value = true
+  selectedImages.value = []
+  galleryPageNum.value = 1
+  searchKeyword.value = ''
+  loadGalleryImages()
+}
+
+// 加载图库图片
+function loadGalleryImages() {
+  galleryLoading.value = true
+  getImageList({
+    keyword: searchKeyword.value,
+    pageNum: galleryPageNum.value,
+    pageSize: galleryPageSize.value
+  }).then(response => {
+    galleryImages.value = response.data.rows || []
+    galleryTotal.value = response.data.total || 0
+  }).catch(() => {
+    proxy.$modal.msgError('加载图库失败')
+  }).finally(() => {
+    galleryLoading.value = false
+  })
+}
+
+// 搜索图库
+function searchGallery() {
+  galleryPageNum.value = 1
+  loadGalleryImages()
+}
+
+// 切换图片选择
+function toggleImageSelection(image) {
+  const index = selectedImages.value.indexOf(image.filePath)
+
+  // 检查是否超出限制
+  if (index === -1) {
+    // 计算当前已选择数量 + 已上传数量
+    const currentTotal = fileList.value.length + selectedImages.value.length
+    if (currentTotal >= props.limit) {
+      proxy.$modal.msgWarning(`最多只能选择 ${props.limit} 张图片`)
+      return
+    }
+    selectedImages.value.push(image.filePath)
+  } else {
+    selectedImages.value.splice(index, 1)
+  }
+}
+
+// 确认选择
+function confirmSelection() {
+  if (selectedImages.value.length === 0) {
+    proxy.$modal.msgWarning('请选择图片')
+    return
+  }
+
+  // 将选中的图片添加到fileList
+  const newImages = galleryImages.value
+      .filter(img => selectedImages.value.includes(img.filePath))
+      .map(img => ({
+        name: img.url,
+        url: img.url
+      }))
+
+  fileList.value = fileList.value.concat(newImages)
+  emit("update:modelValue", listToString(fileList.value))
+
+  galleryVisible.value = false
+  proxy.$modal.msgSuccess(`成功添加 ${newImages.length} 张图片`)
+}
+
 // 初始化拖拽排序
 onMounted(() => {
   if (props.drag && !props.disabled) {
@@ -249,10 +414,90 @@ onMounted(() => {
 <style scoped lang="scss">
 // .el-upload--picture-card 控制加号部分
 :deep(.hide .el-upload--picture-card) {
-    display: none;
+  display: none;
 }
 
 :deep(.el-upload.el-upload--picture-card.is-disabled) {
   display: none !important;
-} 
+}
+
+// 图库样式
+.gallery-container {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  min-height: 200px;
+}
+
+.image-item {
+  position: relative;
+  border: 2px solid #dcdfe6;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: #fff;
+
+  &:hover {
+    border-color: #409eff;
+    box-shadow: 0 2px 12px 0 rgba(64, 158, 255, 0.3);
+    transform: translateY(-2px);
+  }
+
+  &.selected {
+    border-color: #409eff;
+    box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  }
+
+  img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .image-info {
+    padding: 8px;
+    background: #f5f7fa;
+  }
+
+  .image-name {
+    font-size: 12px;
+    color: #606266;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+
+  .image-size {
+    font-size: 11px;
+    color: #909399;
+  }
+
+  .selected-mark {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background: #409eff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+  }
+}
+
+:deep(.el-pagination) {
+  display: flex;
+  justify-content: center;
+}
 </style>

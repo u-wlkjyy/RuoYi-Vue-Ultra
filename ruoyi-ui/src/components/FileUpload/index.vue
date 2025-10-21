@@ -1,24 +1,35 @@
 <template>
   <div class="upload-file">
-    <el-upload
-      multiple
-      :action="uploadFileUrl"
-      :before-upload="handleBeforeUpload"
-      :file-list="fileList"
-      :data="data"
-      :limit="limit"
-      :on-error="handleUploadError"
-      :on-exceed="handleExceed"
-      :on-success="handleUploadSuccess"
-      :show-file-list="false"
-      :headers="headers"
-      class="upload-file-uploader"
-      ref="fileUpload"
-      v-if="!disabled"
-    >
-      <!-- 上传按钮 -->
-      <el-button type="primary">选取文件</el-button>
-    </el-upload>
+    <div class="upload-buttons" v-if="!disabled">
+      <el-upload
+          multiple
+          :action="uploadFileUrl"
+          :before-upload="handleBeforeUpload"
+          :file-list="fileList"
+          :data="data"
+          :limit="limit"
+          :on-error="handleUploadError"
+          :on-exceed="handleExceed"
+          :on-success="handleUploadSuccess"
+          :show-file-list="false"
+          :headers="headers"
+          class="upload-file-uploader"
+          ref="fileUpload"
+      >
+        <!-- 上传按钮 -->
+        <el-button type="primary">选取文件</el-button>
+      </el-upload>
+
+      <!-- 从资源库选择按钮 -->
+      <el-button
+          type="success"
+          plain
+          @click="openLibrary"
+      >
+        <el-icon><FolderOpened /></el-icon> 从资源库选择
+      </el-button>
+    </div>
+
     <!-- 上传提示 -->
     <div class="el-upload__tip" v-if="showTip && !disabled">
       请上传
@@ -37,12 +48,95 @@
         </div>
       </li>
     </transition-group>
+
+    <!-- 资源库选择对话框 -->
+    <el-dialog
+        v-model="libraryVisible"
+        title="选择附件"
+        width="80%"
+        append-to-body
+        destroy-on-close
+    >
+      <div class="library-container">
+        <!-- 搜索栏 -->
+        <el-input
+            v-model="searchKeyword"
+            placeholder="搜索附件名称"
+            clearable
+            style="margin-bottom: 20px;"
+            @keyup.enter="searchLibrary"
+        >
+          <template #append>
+            <el-button :icon="Search" @click="searchLibrary" />
+          </template>
+        </el-input>
+
+        <!-- 附件列表 -->
+        <div v-loading="libraryLoading" class="attachment-list">
+          <el-table
+              :data="libraryAttachments"
+              style="width: 100%"
+              @selection-change="handleSelectionChange"
+          >
+            <el-table-column type="selection" width="55" />
+            <el-table-column label="文件名" min-width="200">
+              <template #default="scope">
+                <el-icon><Document /></el-icon>
+                {{ scope.row.fileName }}
+              </template>
+            </el-table-column>
+            <el-table-column label="文件类型" width="100">
+              <template #default="scope">
+                <el-tag size="small">{{ scope.row.extension }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="文件大小" width="120">
+              <template #default="scope">
+                {{ scope.row.sizeFormatted }}
+              </template>
+            </el-table-column>
+            <el-table-column label="修改时间" width="180">
+              <template #default="scope">
+                {{ formatDate(scope.row.modifiedDate) }}
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <!-- 空状态 -->
+        <el-empty v-if="!libraryLoading && libraryAttachments.length === 0" description="暂无附件" />
+
+        <!-- 分页 -->
+        <el-pagination
+            v-if="libraryTotal > 0"
+            v-model:current-page="libraryPageNum"
+            v-model:page-size="libraryPageSize"
+            :total="libraryTotal"
+            :page-sizes="[20, 40, 60, 100]"
+            layout="total, sizes, prev, pager, next, jumper"
+            @current-change="loadLibraryAttachments"
+            @size-change="loadLibraryAttachments"
+            style="margin-top: 20px; justify-content: center;"
+        />
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="libraryVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmSelection">
+            确定选择 ({{ selectedAttachments.length }})
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { getToken } from "@/utils/auth"
 import Sortable from 'sortablejs'
+import { getAttachmentList } from "@/api/filesystem"
+import { Search, FolderOpened, Document } from '@element-plus/icons-vue'
 
 const props = defineProps({
   modelValue: [String, Object, Array],
@@ -68,7 +162,7 @@ const props = defineProps({
   // 文件类型, 例如['png', 'jpg', 'jpeg']
   fileType: {
     type: Array,
-    default: () => ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "pdf"]
+    default: () => ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "pdf","zip", "rar", "7z", "tar", "gz", "bz2", "xz"]
   },
   // 是否显示提示
   isShowTip: {
@@ -96,8 +190,18 @@ const uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + props.action) // �
 const headers = ref({ Authorization: "Bearer " + getToken() })
 const fileList = ref([])
 const showTip = computed(
-  () => props.isShowTip && (props.fileType || props.fileSize)
+    () => props.isShowTip && (props.fileType || props.fileSize)
 )
+
+// 资源库相关状态
+const libraryVisible = ref(false)
+const libraryLoading = ref(false)
+const libraryAttachments = ref([])
+const selectedAttachments = ref([])
+const searchKeyword = ref('')
+const libraryPageNum = ref(1)
+const libraryPageSize = ref(20)
+const libraryTotal = ref(0)
 
 watch(() => props.modelValue, val => {
   if (val) {
@@ -212,6 +316,85 @@ function listToString(list, separator) {
   return strs != '' ? strs.substr(0, strs.length - 1) : ''
 }
 
+// 格式化日期时间
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
+
+// 打开资源库
+function openLibrary() {
+  libraryVisible.value = true
+  selectedAttachments.value = []
+  libraryPageNum.value = 1
+  searchKeyword.value = ''
+  loadLibraryAttachments()
+}
+
+// 加载资源库附件
+function loadLibraryAttachments() {
+  libraryLoading.value = true
+  getAttachmentList({
+    keyword: searchKeyword.value,
+    pageNum: libraryPageNum.value,
+    pageSize: libraryPageSize.value
+  }).then(response => {
+    libraryAttachments.value = response.data.rows || []
+    libraryTotal.value = response.data.total || 0
+  }).catch(() => {
+    proxy.$modal.msgError('加载资源库失败')
+  }).finally(() => {
+    libraryLoading.value = false
+  })
+}
+
+// 搜索资源库
+function searchLibrary() {
+  libraryPageNum.value = 1
+  loadLibraryAttachments()
+}
+
+// 处理表格选择变化
+function handleSelectionChange(selection) {
+  selectedAttachments.value = selection
+}
+
+// 确认选择
+function confirmSelection() {
+  if (selectedAttachments.value.length === 0) {
+    proxy.$modal.msgWarning('请选择附件')
+    return
+  }
+
+  // 检查数量限制
+  const currentTotal = fileList.value.length + selectedAttachments.value.length
+  if (currentTotal > props.limit) {
+    proxy.$modal.msgWarning(`最多只能选择 ${props.limit} 个文件`)
+    return
+  }
+
+  // 将选中的附件添加到fileList
+  let temp = new Date().getTime()
+  const newFiles = selectedAttachments.value.map(attachment => ({
+    name: attachment.filePath,
+    url: attachment.filePath,
+    uid: temp++
+  }))
+
+  fileList.value = fileList.value.concat(newFiles)
+  emit("update:modelValue", listToString(fileList.value))
+
+  libraryVisible.value = false
+  proxy.$modal.msgSuccess(`成功添加 ${newFiles.length} 个文件`)
+}
+
 // 初始化拖拽排序
 onMounted(() => {
   if (props.drag && !props.disabled) {
@@ -234,8 +417,19 @@ onMounted(() => {
   opacity: 0.5;
   background: #c8ebfb;
 }
-.upload-file-uploader {
+
+.upload-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 5px;
+}
+
+.upload-file-uploader {
+  display: inline-block;
+  :deep(.el-upload) {
+    display: inline-block;
+  }
 }
 .upload-file-list .el-upload-list__item {
   border: 1px solid #e4e7ed;
@@ -252,5 +446,27 @@ onMounted(() => {
 }
 .ele-upload-list__item-content-action .el-link {
   margin-right: 10px;
+}
+
+// 资源库样式
+.library-container {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.attachment-list {
+  min-height: 300px;
+
+  :deep(.el-table) {
+    .el-icon {
+      margin-right: 5px;
+      color: #909399;
+    }
+  }
+}
+
+:deep(.el-pagination) {
+  display: flex;
+  justify-content: center;
 }
 </style>
