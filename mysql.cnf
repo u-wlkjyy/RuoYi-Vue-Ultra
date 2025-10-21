@@ -1,0 +1,33 @@
+[mysqld]
+# 字符集配置
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+
+# 时区配置
+default-time-zone='+8:00'
+
+# 连接配置
+max_connections=200
+max_connect_errors=100
+
+# 日志配置
+log_error=/var/log/mysql/error.log
+slow_query_log=1
+slow_query_log_file=/var/log/mysql/slow.log
+long_query_time=2
+
+# InnoDB配置
+innodb_buffer_pool_size=256M
+innodb_log_file_size=128M
+innodb_flush_log_at_trx_commit=1
+innodb_flush_method=O_DIRECT
+
+# 二进制日志配置（用于主从复制）
+server-id=1
+log-bin=mysql-bin
+binlog_format=ROW
+expire_logs_days=7
+
+[client]
+default-character-set=utf8mb4
+

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ruoyi-ui
+    ports:
+      - "80:80"
+
+    restart: unless-stopped
+    networks:
+      - ruoyi-network
+
+networks:
+  ruoyi-network:
+    driver: bridge

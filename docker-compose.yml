@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # MySQL 8 数据库服务
+  mysql:
+    image: mysql:8.0
+    container_name: ruoyi-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: ruoyi-ultra
+      TZ: Asia/Shanghai
+    volumes:
+      # 挂载数据目录
+      - mysql-data:/var/lib/mysql
+      # 挂载初始化SQL文件
+      - ./ruoyi.sql:/docker-entrypoint-initdb.d/cursor.sql
+      # 挂载MySQL配置文件
+      - ./mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+    command: 
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - ruoyi-network
+
+  # Redis服务
+  redis:
+    image: redis:7-alpine
+    container_name: ruoyi-redis
+    restart: always
+    command: redis-server --appendonly yes --replica-read-only no
+    volumes:
+      - redis-data:/data
+    networks:
+      - ruoyi-network
+
+
+  # 若依应用服务
+  ruoyi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ruoyi-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # 数据库配置
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ruoyi-ultra
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 123456
+      # Redis配置
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+    volumes:
+      # 挂载日志目录
+      - ./logs:/app/logs
+      # 挂载上传文件目录
+      - ./uploadPath:/app/uploadPath
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - ruoyi-network
+
+# 网络配置
+networks:
+  ruoyi-network:
+    driver: bridge
+
+# 数据卷配置
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+
