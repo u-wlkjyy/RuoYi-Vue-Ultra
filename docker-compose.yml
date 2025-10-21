@@ -14,7 +14,7 @@ services:
       # 挂载数据目录
       - mysql-data:/var/lib/mysql
       # 挂载初始化SQL文件
-      - ./ruoyi.sql:/docker-entrypoint-initdb.d/cursor.sql
+      - ./ruoyi-ultra.sql:/docker-entrypoint-initdb.d/cursor.sql
       # 挂载MySQL配置文件
       - ./mysql.cnf:/etc/mysql/conf.d/mysql.cnf
     command: 
