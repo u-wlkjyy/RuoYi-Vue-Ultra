@@ -78,7 +78,7 @@
                   <span>{{ parseTime(scope.row.createTime) }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
+              <el-table-column label="操作" align="center" width="180" class-name="small-padding fixed-width">
                 <template #default="scope">
                   <el-tooltip content="修改" placement="top" v-if="scope.row.userId !== 1">
                     <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:user:edit']"></el-button>
@@ -91,6 +91,9 @@
                   </el-tooltip>
                   <el-tooltip content="分配角色" placement="top" v-if="scope.row.userId !== 1">
                     <el-button link type="primary" icon="CircleCheck" @click="handleAuthRole(scope.row)" v-hasPermi="['system:user:edit']"></el-button>
+                  </el-tooltip>
+                  <el-tooltip content="清除2FA" placement="top" v-if="scope.row.userId !== 1 && scope.row.is2faEnabled === 1">
+                    <el-button link type="primary" icon="Lock" @click="handleClear2fa(scope.row)" v-hasPermi="['system:user:edit']"></el-button>
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -216,7 +219,7 @@
 <script setup name="User">
 import { getToken } from "@/utils/auth"
 import useAppStore from '@/store/modules/app'
-import { changeUserStatus, listUser, resetUserPwd, delUser, getUser, updateUser, addUser, deptTreeSelect } from "@/api/system/user"
+import { changeUserStatus, listUser, resetUserPwd, delUser, getUser, updateUser, addUser, deptTreeSelect, clear2fa } from "@/api/system/user"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 
@@ -418,6 +421,16 @@ function handleResetPwd(row) {
     resetUserPwd(row.userId, value).then(response => {
       proxy.$modal.msgSuccess("修改成功，新密码是：" + value)
     })
+  }).catch(() => {})
+}
+
+/** 清除2FA按钮操作 */
+function handleClear2fa(row) {
+  proxy.$modal.confirm('确认要清除用户"' + row.userName + '"的两步验证吗？').then(() => {
+    return clear2fa(row.userId)
+  }).then(() => {
+    getList()
+    proxy.$modal.msgSuccess("清除成功")
   }).catch(() => {})
 }
 

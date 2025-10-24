@@ -55,6 +55,9 @@
                   <el-tab-pane label="修改密码" name="resetPwd">
                      <resetPwd />
                   </el-tab-pane>
+                  <el-tab-pane label="两步验证" name="twoFactor">
+                     <twoFactor />
+                  </el-tab-pane>
                </el-tabs>
             </el-card>
          </el-col>
@@ -66,6 +69,7 @@
 import userAvatar from "./userAvatar"
 import userInfo from "./userInfo"
 import resetPwd from "./resetPwd"
+import twoFactor from "./twoFactor"
 import { getUserProfile } from "@/api/system/user"
 
 const route = useRoute()

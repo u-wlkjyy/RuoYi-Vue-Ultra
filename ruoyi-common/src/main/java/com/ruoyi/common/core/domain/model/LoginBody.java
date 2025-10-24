@@ -27,6 +27,11 @@ public class LoginBody
      */
     private String uuid;
 
+    /**
+     * TOTP验证码
+     */
+    private String totpCode;
+
     public String getUsername()
     {
         return username;
@@ -65,5 +70,15 @@ public class LoginBody
     public void setUuid(String uuid)
     {
         this.uuid = uuid;
+    }
+
+    public String getTotpCode()
+    {
+        return totpCode;
+    }
+
+    public void setTotpCode(String totpCode)
+    {
+        this.totpCode = totpCode;
     }
 }

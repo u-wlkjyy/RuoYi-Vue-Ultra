@@ -18,9 +18,11 @@ import com.ruoyi.common.exception.user.CaptchaException;
 import com.ruoyi.common.exception.user.CaptchaExpireException;
 import com.ruoyi.common.exception.user.UserNotExistsException;
 import com.ruoyi.common.exception.user.UserPasswordNotMatchException;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.MessageUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.TotpUtils;
 import com.ruoyi.common.utils.ip.IpUtils;
 import com.ruoyi.framework.manager.AsyncManager;
 import com.ruoyi.framework.manager.factory.AsyncFactory;
@@ -58,9 +60,10 @@ public class SysLoginService
      * @param password 密码
      * @param code 验证码
      * @param uuid 唯一标识
+     * @param totpCode TOTP验证码
      * @return 结果
      */
-    public String login(String username, String password, String code, String uuid)
+    public String login(String username, String password, String code, String uuid, String totpCode)
     {
         // 验证码校验
         validateCaptcha(username, code, uuid);
@@ -92,8 +95,30 @@ public class SysLoginService
         {
             AuthenticationContextHolder.clearContext();
         }
-        AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
+        
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+        SysUser user = loginUser.getUser();
+        
+        // 2FA验证 - 只对启用了2FA的用户进行验证
+        if (user.getIs2faEnabled() != null && user.getIs2faEnabled() == 1)
+        {
+            // 用户启用了2FA，必须提供验证码
+            if (StringUtils.isEmpty(totpCode))
+            {
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, "此账号已启用两步验证，请输入验证码"));
+                throw new ServiceException("此账号已启用两步验证，请输入验证码");
+            }
+            
+            // 验证TOTP验证码
+            if (!TotpUtils.verifyCode(user.getSecretKey(), totpCode))
+            {
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, "两步验证码错误"));
+                throw new ServiceException("两步验证码错误，请重新输入");
+            }
+        }
+        // 如果用户未启用2FA，则不需要验证码，直接允许登录
+        
+        AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
         recordLoginInfo(loginUser.getUserId());
         // 生成token
         return tokenService.createToken(loginUser);

@@ -253,4 +253,24 @@ public class SysUserController extends BaseController
     {
         return success(deptService.selectDeptTreeList(dept));
     }
+
+    /**
+     * 清除用户2FA
+     */
+    @PreAuthorize("@ss.hasPermi('system:user:edit')")
+    @Log(title = "用户管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/clear2fa/{userId}")
+    public AjaxResult clear2fa(@PathVariable("userId") Long userId)
+    {
+        userService.checkUserAllowed(new SysUser(userId));
+        userService.checkUserDataScope(userId);
+        
+        SysUser user = new SysUser();
+        user.setUserId(userId);
+        user.setSecretKey(null);
+        user.setIs2faEnabled(0);
+        user.setUpdateBy(getUsername());
+        
+        return toAjax(userService.updateUser(user));
+    }
 }

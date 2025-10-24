@@ -134,3 +134,37 @@ export function deptTreeSelect() {
     method: 'get'
   })
 }
+
+// 获取2FA绑定信息
+export function get2faBindInfo() {
+  return request({
+    url: '/system/user/profile/2fa/bind',
+    method: 'get'
+  })
+}
+
+// 绑定2FA
+export function bind2fa(data) {
+  return request({
+    url: '/system/user/profile/2fa/bind',
+    method: 'post',
+    data: data
+  })
+}
+
+// 解绑2FA
+export function unbind2fa(data) {
+  return request({
+    url: '/system/user/profile/2fa/unbind',
+    method: 'post',
+    data: data
+  })
+}
+
+// 管理员清除用户2FA
+export function clear2fa(userId) {
+  return request({
+    url: '/system/user/clear2fa/' + userId,
+    method: 'put'
+  })
+}

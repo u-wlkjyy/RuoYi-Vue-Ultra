@@ -20,6 +20,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.TotpUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.MimeTypeUtils;
@@ -144,5 +145,118 @@ public class SysProfileController extends BaseController
             }
         }
         return error("上传图片异常，请联系管理员");
+    }
+
+    /**
+     * 获取2FA绑定信息
+     */
+    @GetMapping("/2fa/bind")
+    public AjaxResult get2faBindInfo()
+    {
+        LoginUser loginUser = getLoginUser();
+        SysUser user = loginUser.getUser();
+        AjaxResult ajax = AjaxResult.success();
+        
+        // 确保返回的是数字，而不是null
+        Integer is2faEnabled = user.getIs2faEnabled();
+        ajax.put("is2faEnabled", is2faEnabled != null ? is2faEnabled : 0);
+        
+        // 如果已启用，不返回密钥
+        if (is2faEnabled != null && is2faEnabled == 1)
+        {
+            ajax.put("message", "2FA已启用");
+        }
+        else
+        {
+            // 生成新的密钥
+            String secretKey = TotpUtils.generateSecretKey();
+            String qrCodeUrl = TotpUtils.getQrCodeUrl(user.getUserName(), "RuoYi", secretKey);
+            ajax.put("secretKey", secretKey);
+            ajax.put("qrCodeUrl", qrCodeUrl);
+        }
+        
+        return ajax;
+    }
+
+    /**
+     * 绑定2FA
+     */
+    @Log(title = "2FA绑定", businessType = BusinessType.UPDATE)
+    @PostMapping("/2fa/bind")
+    public AjaxResult bind2fa(@RequestBody Map<String, String> params)
+    {
+        String secretKey = params.get("secretKey");
+        String code = params.get("code");
+        
+        if (StringUtils.isEmpty(secretKey) || StringUtils.isEmpty(code))
+        {
+            return error("参数不能为空");
+        }
+        
+        // 验证验证码
+        if (!TotpUtils.verifyCode(secretKey, code))
+        {
+            return error("验证码错误");
+        }
+        
+        LoginUser loginUser = getLoginUser();
+        SysUser user = loginUser.getUser();
+        
+        // 保存密钥并启用2FA
+        user.setSecretKey(secretKey);
+        user.setIs2faEnabled(1);
+        
+        if (userService.updateUser(user) > 0)
+        {
+            // 更新缓存
+            tokenService.setLoginUser(loginUser);
+            return success("2FA绑定成功");
+        }
+        
+        return error("2FA绑定失败，请联系管理员");
+    }
+
+    /**
+     * 解绑2FA
+     */
+    @Log(title = "2FA解绑", businessType = BusinessType.UPDATE)
+    @PostMapping("/2fa/unbind")
+    public AjaxResult unbind2fa(@RequestBody Map<String, String> params)
+    {
+        String code = params.get("code");
+        String password = params.get("password");
+        
+        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(password))
+        {
+            return error("验证码和密码不能为空");
+        }
+        
+        LoginUser loginUser = getLoginUser();
+        SysUser user = loginUser.getUser();
+        
+        // 验证密码
+        if (!SecurityUtils.matchesPassword(password, user.getPassword()))
+        {
+            return error("密码错误");
+        }
+        
+        // 验证2FA验证码
+        if (!TotpUtils.verifyCode(user.getSecretKey(), code))
+        {
+            return error("验证码错误");
+        }
+        
+        // 清除密钥并禁用2FA
+        user.setSecretKey(null);
+        user.setIs2faEnabled(0);
+        
+        if (userService.updateUser(user) > 0)
+        {
+            // 更新缓存
+            tokenService.setLoginUser(loginUser);
+            return success("2FA解绑成功");
+        }
+        
+        return error("2FA解绑失败，请联系管理员");
     }
 }

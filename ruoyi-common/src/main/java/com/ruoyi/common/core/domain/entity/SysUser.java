@@ -73,6 +73,12 @@ public class SysUser extends BaseEntity
     /** 密码最后更新时间 */
     private Date pwdUpdateDate;
 
+    /** 是否启用2FA（0未启用 1已启用） */
+    private Integer is2faEnabled;
+
+    /** 2FA密钥 */
+    private String secretKey;
+
     /** 部门对象 */
     @Excels({
         @Excel(name = "部门名称", targetAttr = "deptName", type = Type.EXPORT),
@@ -260,6 +266,26 @@ public class SysUser extends BaseEntity
         this.pwdUpdateDate = pwdUpdateDate;
     }
 
+    public Integer getIs2faEnabled()
+    {
+        return is2faEnabled;
+    }
+
+    public void setIs2faEnabled(Integer is2faEnabled)
+    {
+        this.is2faEnabled = is2faEnabled;
+    }
+
+    public String getSecretKey()
+    {
+        return secretKey;
+    }
+
+    public void setSecretKey(String secretKey)
+    {
+        this.secretKey = secretKey;
+    }
+
     public SysDept getDept()
     {
         return dept;
@@ -327,6 +353,8 @@ public class SysUser extends BaseEntity
             .append("loginIp", getLoginIp())
             .append("loginDate", getLoginDate())
             .append("pwdUpdateDate", getPwdUpdateDate())
+            .append("is2faEnabled", getIs2faEnabled())
+            .append("secretKey", getSecretKey())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

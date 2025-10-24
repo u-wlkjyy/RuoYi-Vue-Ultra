@@ -72,6 +72,22 @@
             </div>
           </el-form-item>
 
+          <el-form-item prop="totpCode">
+            <el-input
+                v-model="loginForm.totpCode"
+                size="large"
+                auto-complete="off"
+                placeholder="2FA验证码（如已启用）"
+                maxlength="6"
+                class="form-input"
+                @keyup.enter="handleLogin"
+            >
+              <template #prefix>
+                <svg-icon icon-class="lock" class="input-icon" />
+              </template>
+            </el-input>
+          </el-form-item>
+
           <div class="form-options">
             <el-checkbox v-model="loginForm.rememberMe" class="remember-me">
               记住密码
@@ -126,7 +142,8 @@ const loginForm = ref({
   password: "admin123",
   rememberMe: false,
   code: "",
-  uuid: ""
+  uuid: "",
+  totpCode: ""
 })
 
 const currentYear = new Date().getFullYear()
