@@ -11,7 +11,7 @@
  Target Server Version : 90300 (9.3.0)
  File Encoding         : 65001
 
- Date: 21/10/2025 09:16:47
+ Date: 24/10/2025 17:42:37
 */
 
 SET NAMES utf8mb4;
@@ -557,7 +557,7 @@ CREATE TABLE `sys_logininfor` (
   PRIMARY KEY (`info_id`),
   KEY `idx_sys_logininfor_s` (`status`),
   KEY `idx_sys_logininfor_lt` (`login_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统访问记录';
+) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统访问记录';
 
 -- ----------------------------
 -- Records of sys_logininfor
@@ -569,6 +569,33 @@ INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`
 INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (103, 'admin', '127.0.0.1', '内网IP', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-21 08:51:00');
 INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (104, 'admin', '127.0.0.1', '内网IP', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-21 08:51:03');
 INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (105, 'admin', '127.0.0.1', '内网IP', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-21 08:51:29');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (106, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 14:31:36');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (107, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-24 15:21:06');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (108, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 15:22:16');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (109, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-24 15:29:33');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (110, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '1', '2FA验证码不能为空', '2025-10-24 15:29:35');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (111, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '1', '2FA验证码不能为空', '2025-10-24 15:29:43');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (112, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '1', '2FA验证码不能为空', '2025-10-24 15:29:50');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (113, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '1', '两步验证码错误', '2025-10-24 15:32:50');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (114, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 15:33:11');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (115, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-24 15:47:54');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (116, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '1', '此账号已启用两步验证，请输入验证码', '2025-10-24 15:47:57');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (117, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 15:48:05');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (118, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-24 16:01:34');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (119, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '1', '两步验证码错误', '2025-10-24 16:01:39');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (120, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 16:01:44');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (121, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-24 16:02:14');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (122, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 16:02:16');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (123, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-24 16:02:18');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (124, 'ry', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 16:02:23');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (125, 'ry', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-24 16:02:50');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (126, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 16:02:52');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (127, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 16:54:46');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (128, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 17:30:50');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (129, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-24 17:38:12');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (130, 'ry', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 17:38:25');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (131, 'ry', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '退出成功', '2025-10-24 17:38:58');
+INSERT INTO `sys_logininfor` (`info_id`, `user_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`) VALUES (132, 'admin', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', 'Chrome 14', 'Mac OS X', '0', '登录成功', '2025-10-24 17:39:30');
 COMMIT;
 
 -- ----------------------------
@@ -742,7 +769,7 @@ CREATE TABLE `sys_oper_log` (
   KEY `idx_sys_oper_log_bt` (`business_type`),
   KEY `idx_sys_oper_log_s` (`status`),
   KEY `idx_sys_oper_log_ot` (`oper_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='操作日志记录';
+) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='操作日志记录';
 
 -- ----------------------------
 -- Records of sys_oper_log
@@ -757,6 +784,21 @@ INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `requ
 INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (106, '代码生成', 8, 'com.ruoyi.generator.controller.GenController.batchGenCode()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '127.0.0.1', '内网IP', '{\"tables\":\"sys_dynamic_dict\"}', NULL, 0, NULL, '2025-10-21 08:58:24', 87);
 INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (107, '代码生成', 2, 'com.ruoyi.generator.controller.GenController.editSave()', 'PUT', 1, 'admin', '研发部门', '/tool/gen', '127.0.0.1', '内网IP', '{\"businessName\":\"dynamicDict\",\"className\":\"SysDynamicDict\",\"columns\":[{\"capJavaField\":\"Id\",\"columnComment\":\"编号\",\"columnId\":1,\"columnName\":\"id\",\"columnType\":\"int\",\"createBy\":\"admin\",\"createTime\":\"2025-10-21 08:55:54\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":true,\"insert\":true,\"isIncrement\":\"1\",\"isInsert\":\"1\",\"isPk\":\"1\",\"isRequired\":\"0\",\"javaField\":\"id\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":true,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":1,\"superColumn\":false,\"tableId\":1,\"updateBy\":\"\",\"updateTime\":\"2025-10-21 08:58:20\",\"usableColumn\":false},{\"capJavaField\":\"DictName\",\"columnComment\":\"字典名称\",\"columnId\":2,\"columnName\":\"dict_name\",\"columnType\":\"varchar(255)\",\"createBy\":\"admin\",\"createTime\":\"2025-10-21 08:55:54\",\"dictType\":\"\",\"edit\":true,\"htmlType\":\"input\",\"increment\":false,\"insert\":true,\"isEdit\":\"1\",\"isIncrement\":\"0\",\"isInsert\":\"1\",\"isList\":\"1\",\"isPk\":\"0\",\"isQuery\":\"1\",\"isRequired\":\"1\",\"javaField\":\"dictName\",\"javaType\":\"String\",\"list\":true,\"params\":{},\"pk\":false,\"query\":true,\"queryType\":\"LIKE\",\"required\":true,\"sort\":2,\"superColumn\":false,\"tableId\":1,\"updateBy\":\"\",\"updateTime\":\"2025-10-21 08:58:20\",\"usableColumn\":false},{\"capJavaField\":\"DictType\",\"columnComment\":\"字典类型\",\"columnId\":3,\"columnName\":\"dict_type\",\"columnType\":\"varchar(255)\",\"createBy\":\"admin\",\"createTime\":\"2025-10-21 08:55:54\",\"dictType\":\"\",\"edit\":true,\"htmlType\":\"input\",\"increment\":false,\"insert\":true,\"isEdit\":\"1\",\"isIncrement\":\"0\",\"isInsert\":\"1\",\"isList\":\"1\",\"isPk\":\"0\",\"isQuery\":\"1\",\"isRequired\":\"1\",\"javaField\":\"dictType\",\"javaType\":\"String\",\"list\":true,\"params\":{},\"pk\":false,\"query\":true,\"queryType\":\"EQ\",\"required\":true,\"sort\":3,\"superColumn\":false,\"tableId\":1,\"updateBy\":\"\",\"updateTime\":\"2025-10-21 08:58:20\",\"usableColumn\":false},{\"capJavaField\":\"SqlCustom\",\"columnComment\":\"SQL查询\",\"columnId\":4,\"columnName\":\"sql_custom\",\"columnType\":\"text\",\"createBy\":\"admin\",\"createTime\":\"2025-10-21 08:55:54\",\"dictType\":\"\",\"edit\":true,\"htmlType\":\"textarea\",\"increment\":false,\"insert\":true,\"', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-10-21 09:00:03', 29);
 INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (108, '代码生成', 3, 'com.ruoyi.generator.controller.GenController.remove()', 'DELETE', 1, 'admin', '研发部门', '/tool/gen/1', '127.0.0.1', '内网IP', '[1]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-10-21 09:16:25', 21);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (109, '2FA绑定', 2, 'com.ruoyi.web.controller.system.SysProfileController.bind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/bind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"secretKey\":\"X6RHEF2VSLWVQRF6W43VWAAARHFT363H\",\"code\":\"142033\"}', '{\"msg\":\"2FA绑定成功\",\"code\":200}', 0, NULL, '2025-10-24 15:29:28', 64);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (110, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"899590\"}', '{\"msg\":\"2FA解绑成功\",\"code\":200}', 0, NULL, '2025-10-24 15:33:31', 97);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (111, '2FA绑定', 2, 'com.ruoyi.web.controller.system.SysProfileController.bind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/bind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"secretKey\":\"VV56HMJYBZHQOFDBI74X3BAFNMMDTEGH\",\"code\":\"682962\"}', '{\"msg\":\"2FA绑定成功\",\"code\":200}', 0, NULL, '2025-10-24 15:47:41', 26);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (112, '用户管理', 2, 'com.ruoyi.web.controller.system.SysUserController.resetPwd()', 'PUT', 1, 'admin', '研发部门', '/system/user/resetPwd', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"admin\":false,\"params\":{},\"updateBy\":\"admin\",\"userId\":2}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-10-24 15:55:23', 83);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (113, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"523101\"}', '{\"msg\":\"验证码错误\",\"code\":500}', 0, NULL, '2025-10-24 15:55:45', 90);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (114, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"523101\"}', '{\"msg\":\"验证码错误\",\"code\":500}', 0, NULL, '2025-10-24 15:55:58', 92);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (115, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"259442\"}', '{\"msg\":\"验证码错误\",\"code\":500}', 0, NULL, '2025-10-24 15:56:10', 92);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (116, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"259442\"}', '{\"msg\":\"验证码错误\",\"code\":500}', 0, NULL, '2025-10-24 15:56:12', 90);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (117, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"123123\"}', '{\"msg\":\"密码错误\",\"code\":500}', 0, NULL, '2025-10-24 15:57:02', 84);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (118, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"123123\"}', '{\"msg\":\"验证码错误\",\"code\":500}', 0, NULL, '2025-10-24 15:57:07', 96);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (119, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"123123\"}', '{\"msg\":\"验证码错误\",\"code\":500}', 0, NULL, '2025-10-24 15:58:04', 76);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (120, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"272257\"}', '{\"msg\":\"验证码错误\",\"code\":500}', 0, NULL, '2025-10-24 15:59:37', 72);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (121, '2FA解绑', 2, 'com.ruoyi.web.controller.system.SysProfileController.unbind2fa()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/2fa/unbind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"code\":\"006534\"}', '{\"msg\":\"2FA解绑成功\",\"code\":200}', 0, NULL, '2025-10-24 16:02:06', 92);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (122, '2FA绑定', 2, 'com.ruoyi.web.controller.system.SysProfileController.bind2fa()', 'POST', 1, 'ry', '测试部门', '/system/user/profile/2fa/bind', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '{\"secretKey\":\"XII7255MZPXKAVUOPYUF6NMBVOGEFXKZ\",\"code\":\"111154\"}', '{\"msg\":\"2FA绑定成功\",\"code\":200}', 0, NULL, '2025-10-24 16:02:42', 10);
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`, `cost_time`) VALUES (123, '用户管理', 2, 'com.ruoyi.web.controller.system.SysUserController.clear2fa()', 'PUT', 1, 'admin', '研发部门', '/system/user/clear2fa/2', '127.0.0.1', 'IANA	本机地址/环回地址(Loopback)', '2', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-10-24 16:03:00', 12);
 COMMIT;
 
 -- ----------------------------
@@ -856,6 +898,24 @@ INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (2, 1035);
 COMMIT;
 
 -- ----------------------------
+-- Table structure for sys_upload_file
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_upload_file`;
+CREATE TABLE `sys_upload_file` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL COMMENT '上传用户',
+  `path` varchar(255) DEFAULT NULL COMMENT '路径',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of sys_upload_file
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
 -- Table structure for sys_user
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user`;
@@ -880,6 +940,8 @@ CREATE TABLE `sys_user` (
   `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) DEFAULT NULL COMMENT '备注',
+  `is_2fa_enabled` tinyint(1) DEFAULT NULL COMMENT '是否启用2fa',
+  `secret_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户信息表';
 
@@ -887,8 +949,8 @@ CREATE TABLE `sys_user` (
 -- Records of sys_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user` (`user_id`, `dept_id`, `user_name`, `nick_name`, `user_type`, `email`, `phonenumber`, `sex`, `avatar`, `password`, `status`, `del_flag`, `login_ip`, `login_date`, `pwd_update_date`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`) VALUES (1, 103, 'admin', '若依', '00', 'ry@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2025-10-21 08:51:30', '2025-10-21 08:23:57', 'admin', '2025-10-21 08:23:57', '', NULL, '管理员');
-INSERT INTO `sys_user` (`user_id`, `dept_id`, `user_name`, `nick_name`, `user_type`, `email`, `phonenumber`, `sex`, `avatar`, `password`, `status`, `del_flag`, `login_ip`, `login_date`, `pwd_update_date`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`) VALUES (2, 105, 'ry', '若依', '00', 'ry@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2025-10-21 08:23:57', '2025-10-21 08:23:57', 'admin', '2025-10-21 08:23:57', '', NULL, '测试员');
+INSERT INTO `sys_user` (`user_id`, `dept_id`, `user_name`, `nick_name`, `user_type`, `email`, `phonenumber`, `sex`, `avatar`, `password`, `status`, `del_flag`, `login_ip`, `login_date`, `pwd_update_date`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`, `is_2fa_enabled`, `secret_key`) VALUES (1, 103, 'admin', '若依', '00', 'ry@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2025-10-24 17:39:31', '2025-10-21 08:23:57', 'admin', '2025-10-21 08:23:57', '', '2025-10-24 16:02:06', '管理员', 0, 'VV56HMJYBZHQOFDBI74X3BAFNMMDTEGH');
+INSERT INTO `sys_user` (`user_id`, `dept_id`, `user_name`, `nick_name`, `user_type`, `email`, `phonenumber`, `sex`, `avatar`, `password`, `status`, `del_flag`, `login_ip`, `login_date`, `pwd_update_date`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`, `is_2fa_enabled`, `secret_key`) VALUES (2, NULL, 'ry', '若依', '00', 'ry@qq.com', '15666666666', '1', '', '$2a$10$9.OKpCNqin3RpB4G9hfpKOPfRFIfhd27XDTRDbuwm/Bn85jAijD5a', '0', '0', '127.0.0.1', '2025-10-24 17:38:26', '2025-10-24 15:55:23', 'admin', '2025-10-21 08:23:57', 'admin', '2025-10-24 16:03:00', '测试员', 0, 'XII7255MZPXKAVUOPYUF6NMBVOGEFXKZ');
 COMMIT;
 
 -- ----------------------------
@@ -905,8 +967,6 @@ CREATE TABLE `sys_user_post` (
 -- Records of sys_user_post
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user_post` (`user_id`, `post_id`) VALUES (1, 1);
-INSERT INTO `sys_user_post` (`user_id`, `post_id`) VALUES (2, 2);
 COMMIT;
 
 -- ----------------------------
@@ -923,8 +983,6 @@ CREATE TABLE `sys_user_role` (
 -- Records of sys_user_role
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user_role` (`user_id`, `role_id`) VALUES (1, 1);
-INSERT INTO `sys_user_role` (`user_id`, `role_id`) VALUES (2, 2);
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

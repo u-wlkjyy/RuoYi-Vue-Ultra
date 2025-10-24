@@ -40,6 +40,113 @@
       </div>
     </div>
 
+    <!-- 图片上传测试 -->
+    <div class="section-container">
+      <div class="section-header">
+        <h3>图片上传测试</h3>
+        <div>
+          <el-tag type="success" size="small">
+            支持从图库选择已上传的图片
+          </el-tag>
+        </div>
+      </div>
+      <div class="image-upload-section">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <div class="upload-area">
+              <h4>上传图片</h4>
+              <image-upload 
+                v-model="uploadedImages" 
+                :limit="9"
+                :file-size="5"
+                @update:modelValue="handleImageUpload"
+              />
+            </div>
+          </el-col>
+          <el-col :span="12">
+            <div class="recent-images">
+              <h4>最近上传的图片</h4>
+              <div v-loading="recentImagesLoading" style="min-height: 200px;">
+                <div class="image-grid">
+                  <div 
+                    v-for="image in recentImages" 
+                    :key="image.id" 
+                    class="image-card"
+                  >
+                    <img :src="image.url" :alt="image.fileName" />
+                    <div class="image-info-overlay">
+                      <div class="image-name">{{ image.fileName }}</div>
+                      <div class="image-meta">
+                        <span>{{ image.sizeFormatted }}</span>
+                        <span>{{ formatFileTime(image.createTime) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <el-empty 
+                  v-if="!recentImagesLoading && recentImages.length === 0" 
+                  description="暂无图片上传记录" 
+                  :image-size="60" 
+                />
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+    </div>
+
+    <!-- 文件上传测试 -->
+    <div class="section-container">
+      <div class="section-header">
+        <h3>文件上传测试</h3>
+        <div>
+          <el-tag v-if="fileStats.totalFiles !== undefined" type="info" size="small">
+            总文件: {{ fileStats.totalFiles }} | 
+            图片: {{ fileStats.imageCount }} | 
+            附件: {{ fileStats.attachmentCount }} | 
+            {{ fileStats.totalSizeFormatted }}
+          </el-tag>
+        </div>
+      </div>
+      <div class="file-upload-section">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <div class="upload-area">
+              <h4>上传文件</h4>
+              <file-upload 
+                v-model="uploadedFiles" 
+                :limit="10"
+                :file-size="10"
+                @update:modelValue="handleFileUpload"
+              />
+            </div>
+          </el-col>
+          <el-col :span="12">
+            <div class="recent-files">
+              <h4>最近上传的文件</h4>
+              <div v-loading="recentFilesLoading" style="min-height: 150px;">
+                <div 
+                  v-for="file in recentFiles" 
+                  :key="file.id" 
+                  class="recent-file-item"
+                >
+                  <el-icon><Document /></el-icon>
+                  <span class="file-name">{{ file.fileName }}</span>
+                  <el-tag size="small" type="success">{{ file.sizeFormatted }}</el-tag>
+                  <span class="file-time">{{ formatFileTime(file.createTime) }}</span>
+                </div>
+                <el-empty 
+                  v-if="!recentFilesLoading && recentFiles.length === 0" 
+                  description="暂无上传记录" 
+                  :image-size="60" 
+                />
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+    </div>
+
     <!-- 通知公告 -->
     <div class="section-container">
       <div class="section-header">
@@ -78,6 +185,7 @@ import { useRouter } from 'vue-router'
 import useUserStore from '@/store/modules/user'
 import { getUserProfile } from "@/api/system/user"
 import { listNotice, getNotice } from "@/api/system/notice"
+import { getImageList, getAttachmentList, getFileStats } from "@/api/filesystem"
 import {
   Document,
   OfficeBuilding,
@@ -108,6 +216,22 @@ const title = import.meta.env.VITE_APP_TITLE
 // 通知公告
 const noticeList = ref([])
 const noticeLoading = ref(false)
+
+// 图片上传
+const uploadedImages = ref('')
+const recentImages = ref([])
+const recentImagesLoading = ref(false)
+
+// 文件上传
+const uploadedFiles = ref('')
+const recentFiles = ref([])
+const recentFilesLoading = ref(false)
+const fileStats = ref({
+  totalFiles: 0,
+  imageCount: 0,
+  attachmentCount: 0,
+  totalSizeFormatted: '0 B'
+})
 
 // 更新当前时间
 function updateTime() {
@@ -207,11 +331,86 @@ function formatNoticeTime(timeStr) {
   }
 }
 
+// 格式化文件时间
+function formatFileTime(timeStr) {
+  if (!timeStr) return ''
+  const date = new Date(timeStr)
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hour = String(date.getHours()).padStart(2, '0')
+  const minute = String(date.getMinutes()).padStart(2, '0')
+  return `${month}-${day} ${hour}:${minute}`
+}
+
+// 处理图片上传
+function handleImageUpload(value) {
+  // 图片上传成功后刷新列表
+  if (value) {
+    setTimeout(() => {
+      getRecentImages()
+      getStats()
+    }, 500)
+  }
+}
+
+// 处理文件上传
+function handleFileUpload(value) {
+  // 文件上传成功后刷新列表
+  if (value) {
+    setTimeout(() => {
+      getRecentFiles()
+      getStats()
+    }, 500)
+  }
+}
+
+// 获取最近上传的图片
+function getRecentImages() {
+  recentImagesLoading.value = true
+  getImageList({
+    pageNum: 1,
+    pageSize: 6
+  }).then(response => {
+    recentImages.value = response.data.rows || []
+  }).catch(() => {
+    recentImages.value = []
+  }).finally(() => {
+    recentImagesLoading.value = false
+  })
+}
+
+// 获取最近上传的文件
+function getRecentFiles() {
+  recentFilesLoading.value = true
+  getAttachmentList({
+    pageNum: 1,
+    pageSize: 5
+  }).then(response => {
+    recentFiles.value = response.data.rows || []
+  }).catch(() => {
+    recentFiles.value = []
+  }).finally(() => {
+    recentFilesLoading.value = false
+  })
+}
+
+// 获取文件统计
+function getStats() {
+  getFileStats().then(response => {
+    fileStats.value = response.data || fileStats.value
+  }).catch(() => {
+    // 失败时保持默认值
+  })
+}
+
 onMounted(() => {
   updateTime()
   timeInterval = setInterval(updateTime, 1000)
   getUserInfo()
   getNoticeList()
+  getRecentImages()
+  getRecentFiles()
+  getStats()
 })
 
 onBeforeUnmount(() => {
@@ -403,6 +602,131 @@ onBeforeUnmount(() => {
         span {
           color: #262626;
         }
+      }
+    }
+  }
+
+  // 图片上传区域
+  .image-upload-section {
+    padding: 24px;
+
+    .upload-area,
+    .recent-images {
+      h4 {
+        margin: 0 0 16px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #262626;
+      }
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .image-card {
+      position: relative;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      &:hover {
+        border-color: #1890ff;
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+
+        .image-info-overlay {
+          opacity: 1;
+        }
+      }
+
+      img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .image-info-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+        padding: 8px;
+        opacity: 0;
+        transition: opacity 0.3s;
+
+        .image-name {
+          font-size: 12px;
+          color: #fff;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          margin-bottom: 4px;
+        }
+
+        .image-meta {
+          display: flex;
+          justify-content: space-between;
+          font-size: 11px;
+          color: rgba(255, 255, 255, 0.8);
+        }
+      }
+    }
+  }
+
+  // 文件上传区域
+  .file-upload-section {
+    padding: 24px;
+
+    .upload-area,
+    .recent-files {
+      h4 {
+        margin: 0 0 16px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #262626;
+      }
+    }
+
+    .recent-file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.3s;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background: #fafafa;
+      }
+
+      .el-icon {
+        color: #1890ff;
+        font-size: 18px;
+      }
+
+      .file-name {
+        flex: 1;
+        font-size: 14px;
+        color: #262626;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .file-time {
+        font-size: 12px;
+        color: #8c8c8c;
+        margin-left: 8px;
       }
     }
   }

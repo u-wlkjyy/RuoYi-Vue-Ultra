@@ -22,7 +22,11 @@ import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.framework.config.ServerConfig;
+import com.ruoyi.system.domain.SysUploadFile;
+import com.ruoyi.system.service.ISysUploadFileService;
 
 /**
  * 文件系统控制器
@@ -39,6 +43,9 @@ public class FileSystemController extends BaseController
     @Autowired
     private ServerConfig serverConfig;
 
+    @Autowired
+    private ISysUploadFileService uploadFileService;
+
     /**
      * 支持的图片格式
      */
@@ -54,7 +61,8 @@ public class FileSystemController extends BaseController
     );
 
     /**
-     * 获取所有图片列表
+     * 获取所有图片列表（基于数据库）
+     * 管理员可以查看所有文件，普通用户只能查看自己上传的文件
      * 
      * @param keyword 关键词搜索（可选）
      * @param pageNum 页码（默认1）
@@ -69,23 +77,40 @@ public class FileSystemController extends BaseController
     {
         try
         {
-            // 获取上传目录路径
-            String uploadPath = RuoYiConfig.getUploadPath();
-            File uploadDir = new File(uploadPath);
+            LoginUser loginUser = getLoginUser();
+            Long userId = loginUser.getUserId();
+            boolean isAdmin = SysUser.isAdmin(userId);
 
-            if (!uploadDir.exists() || !uploadDir.isDirectory())
+            // 构建查询条件
+            SysUploadFile query = new SysUploadFile();
+            
+            // 如果不是管理员，只查询自己的文件
+            if (!isAdmin)
             {
-                return AjaxResult.success(Collections.emptyList());
+                query.setUserId(userId.intValue());
+            }
+            
+            // 关键词搜索
+            if (keyword != null && !keyword.trim().isEmpty())
+            {
+                query.setPath(keyword);
             }
 
-            // 递归扫描所有图片文件
-            List<Map<String, Object>> imageList = scanImages(uploadDir, keyword);
+            // 查询数据库中的文件记录
+            List<SysUploadFile> uploadFiles = uploadFileService.selectUploadFileList(query);
 
-            // 按修改时间倒序排序（最新的在前面）
+            // 过滤出图片文件并构建返回信息
+            List<Map<String, Object>> imageList = uploadFiles.stream()
+                .filter(file -> isImageFile(file.getPath()))
+                .map(this::buildFileInfoFromDb)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+            // 按创建时间倒序排序（最新的在前面）
             imageList.sort((a, b) -> {
-                Long timeA = (Long) a.get("modifiedTime");
-                Long timeB = (Long) b.get("modifiedTime");
-                return timeB.compareTo(timeA);
+                Date dateA = (Date) a.get("createTime");
+                Date dateB = (Date) b.get("createTime");
+                return dateB.compareTo(dateA);
             });
 
             // 分页处理
@@ -109,6 +134,7 @@ public class FileSystemController extends BaseController
             result.put("rows", pagedList);
             result.put("pageNum", pageNum);
             result.put("pageSize", pageSize);
+            result.put("isAdmin", isAdmin);
 
             return AjaxResult.success(result);
         }
@@ -120,7 +146,8 @@ public class FileSystemController extends BaseController
     }
 
     /**
-     * 获取所有附件列表
+     * 获取所有附件列表（基于数据库）
+     * 管理员可以查看所有文件，普通用户只能查看自己上传的文件
      * 
      * @param keyword 关键词搜索（可选）
      * @param pageNum 页码（默认1）
@@ -135,23 +162,40 @@ public class FileSystemController extends BaseController
     {
         try
         {
-            // 获取上传目录路径
-            String uploadPath = RuoYiConfig.getUploadPath();
-            File uploadDir = new File(uploadPath);
+            LoginUser loginUser = getLoginUser();
+            Long userId = loginUser.getUserId();
+            boolean isAdmin = SysUser.isAdmin(userId);
 
-            if (!uploadDir.exists() || !uploadDir.isDirectory())
+            // 构建查询条件
+            SysUploadFile query = new SysUploadFile();
+            
+            // 如果不是管理员，只查询自己的文件
+            if (!isAdmin)
             {
-                return AjaxResult.success(Collections.emptyList());
+                query.setUserId(userId.intValue());
+            }
+            
+            // 关键词搜索
+            if (keyword != null && !keyword.trim().isEmpty())
+            {
+                query.setPath(keyword);
             }
 
-            // 递归扫描所有附件文件
-            List<Map<String, Object>> attachmentList = scanAttachments(uploadDir, keyword);
+            // 查询数据库中的文件记录
+            List<SysUploadFile> uploadFiles = uploadFileService.selectUploadFileList(query);
 
-            // 按修改时间倒序排序（最新的在前面）
+            // 过滤出附件文件并构建返回信息
+            List<Map<String, Object>> attachmentList = uploadFiles.stream()
+                .filter(file -> isAttachmentFile(file.getPath()))
+                .map(this::buildFileInfoFromDb)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+            // 按创建时间倒序排序（最新的在前面）
             attachmentList.sort((a, b) -> {
-                Long timeA = (Long) a.get("modifiedTime");
-                Long timeB = (Long) b.get("modifiedTime");
-                return timeB.compareTo(timeA);
+                Date dateA = (Date) a.get("createTime");
+                Date dateB = (Date) b.get("createTime");
+                return dateB.compareTo(dateA);
             });
 
             // 分页处理
@@ -175,6 +219,7 @@ public class FileSystemController extends BaseController
             result.put("rows", pagedList);
             result.put("pageNum", pageNum);
             result.put("pageSize", pageSize);
+            result.put("isAdmin", isAdmin);
 
             return AjaxResult.success(result);
         }
@@ -277,6 +322,55 @@ public class FileSystemController extends BaseController
         }
 
         return attachmentList;
+    }
+
+    /**
+     * 从数据库记录构建文件信息
+     * 
+     * @param uploadFile 上传文件记录
+     * @return 文件信息
+     */
+    private Map<String, Object> buildFileInfoFromDb(SysUploadFile uploadFile)
+    {
+        try
+        {
+            String filePath = uploadFile.getPath();
+            
+            // 构建完整的文件系统路径
+            String profilePath = RuoYiConfig.getProfile();
+            String fullPath = profilePath + filePath.replace("/profile", "");
+            File file = new File(fullPath);
+            
+            // 如果文件不存在，返回 null
+            if (!file.exists())
+            {
+                log.warn("文件不存在: {}", fullPath);
+                return null;
+            }
+            
+            // 构建访问URL
+            String url = serverConfig.getUrl() + filePath;
+
+            Map<String, Object> info = new HashMap<>();
+            info.put("id", uploadFile.getId());
+            info.put("userId", uploadFile.getUserId());
+            info.put("fileName", file.getName());
+            info.put("filePath", filePath);
+            info.put("url", url);
+            info.put("size", file.length());
+            info.put("sizeFormatted", formatFileSize(file.length()));
+            info.put("createTime", uploadFile.getCreateTime());
+            info.put("modifiedTime", file.lastModified());
+            info.put("modifiedDate", new Date(file.lastModified()));
+            info.put("extension", getFileExtension(file.getName()));
+
+            return info;
+        }
+        catch (Exception e)
+        {
+            log.error("构建文件信息失败: {}", uploadFile.getPath(), e);
+            return null;
+        }
     }
 
     /**
@@ -433,7 +527,8 @@ public class FileSystemController extends BaseController
     }
 
     /**
-     * 获取上传目录统计信息
+     * 获取上传目录统计信息（基于数据库）
+     * 管理员可以查看所有统计，普通用户只能查看自己的统计
      * 
      * @return 统计信息
      */
@@ -442,41 +537,58 @@ public class FileSystemController extends BaseController
     {
         try
         {
-            String uploadPath = RuoYiConfig.getUploadPath();
-            File uploadDir = new File(uploadPath);
+            LoginUser loginUser = getLoginUser();
+            Long userId = loginUser.getUserId();
+            boolean isAdmin = SysUser.isAdmin(userId);
 
-            if (!uploadDir.exists() || !uploadDir.isDirectory())
+            // 构建查询条件
+            SysUploadFile query = new SysUploadFile();
+            
+            // 如果不是管理员，只查询自己的文件
+            if (!isAdmin)
             {
-                return AjaxResult.error("上传目录不存在");
+                query.setUserId(userId.intValue());
             }
+
+            // 查询数据库中的文件记录
+            List<SysUploadFile> uploadFiles = uploadFileService.selectUploadFileList(query);
 
             Map<String, Object> stats = new HashMap<>();
             
-            // 扫描所有文件
-            final long[] totalSize = {0};
-            final int[] imageCount = {0};
-            final int[] totalFiles = {0};
+            long totalSize = 0;
+            int imageCount = 0;
+            int attachmentCount = 0;
+            int totalFiles = uploadFiles.size();
 
-            try (Stream<Path> paths = Files.walk(Paths.get(uploadDir.getPath())))
+            // 计算统计信息
+            for (SysUploadFile uploadFile : uploadFiles)
             {
-                paths.filter(Files::isRegularFile)
-                    .forEach(path -> {
-                        totalFiles[0]++;
-                        File file = path.toFile();
-                        totalSize[0] += file.length();
-                        if (isImageFile(file.getName()))
-                        {
-                            imageCount[0]++;
-                        }
-                    });
+                String filePath = uploadFile.getPath();
+                String fullPath = RuoYiConfig.getProfile() + filePath.replace("/profile", "");
+                File file = new File(fullPath);
+                
+                if (file.exists())
+                {
+                    totalSize += file.length();
+                    
+                    if (isImageFile(filePath))
+                    {
+                        imageCount++;
+                    }
+                    else if (isAttachmentFile(filePath))
+                    {
+                        attachmentCount++;
+                    }
+                }
             }
 
-            stats.put("totalFiles", totalFiles[0]);
-            stats.put("imageCount", imageCount[0]);
-            stats.put("otherFiles", totalFiles[0] - imageCount[0]);
-            stats.put("totalSize", totalSize[0]);
-            stats.put("totalSizeFormatted", formatFileSize(totalSize[0]));
-            stats.put("uploadPath", uploadPath);
+            stats.put("totalFiles", totalFiles);
+            stats.put("imageCount", imageCount);
+            stats.put("attachmentCount", attachmentCount);
+            stats.put("otherFiles", totalFiles - imageCount - attachmentCount);
+            stats.put("totalSize", totalSize);
+            stats.put("totalSizeFormatted", formatFileSize(totalSize));
+            stats.put("isAdmin", isAdmin);
 
             return AjaxResult.success(stats);
         }

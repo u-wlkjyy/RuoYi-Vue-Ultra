@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysUploadFileMapper">
+    
+    <resultMap type="SysUploadFile" id="SysUploadFileResult">
+    	<id     property="id"           column="id"           />
+        <result property="userId"       column="user_id"      />
+        <result property="path"         column="path"         />
+        <result property="createTime"   column="create_time"  />
+    </resultMap>
+    
+    <sql id="selectUploadFileVo">
+        select id, user_id, path, create_time 
+		from sys_upload_file
+    </sql>
+    
+    <select id="selectUploadFileById" parameterType="Integer" resultMap="SysUploadFileResult">
+        <include refid="selectUploadFileVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectUploadFileList" parameterType="SysUploadFile" resultMap="SysUploadFileResult">
+        <include refid="selectUploadFileVo"/>
+        <where>
+			<if test="userId != null">
+				AND user_id = #{userId}
+			</if>
+			<if test="path != null and path != ''">
+				AND path like concat('%', #{path}, '%')
+			</if>
+			<if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+				and date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+			</if>
+			<if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+				and date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+			</if>
+		</where>
+    </select>
+    
+    <insert id="insertUploadFile" parameterType="SysUploadFile" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_upload_file (
+			<if test="userId != null">user_id,</if>
+			<if test="path != null and path != ''">path,</if>
+ 			create_time
+        )values(
+			<if test="userId != null">#{userId},</if>
+			<if test="path != null and path != ''">#{path},</if>
+ 			sysdate()
+		)
+    </insert>
+	 
+    <update id="updateUploadFile" parameterType="SysUploadFile">
+        update sys_upload_file 
+        <set>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="path != null and path != ''">path = #{path},</if>
+        </set>
+        where id = #{id}
+    </update>
+	
+    <delete id="deleteUploadFileById" parameterType="Integer">
+        delete from sys_upload_file where id = #{id}
+    </delete>
+    
+    <delete id="deleteUploadFileByIds" parameterType="Integer">
+        delete from sys_upload_file where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        	#{id}
+        </foreach>
+    </delete>
+    
+</mapper>
+

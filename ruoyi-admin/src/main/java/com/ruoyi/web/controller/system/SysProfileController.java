@@ -1,6 +1,8 @@
 package com.ruoyi.web.controller.system;
 
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +27,8 @@ import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.MimeTypeUtils;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.system.domain.SysUploadFile;
+import com.ruoyi.system.service.ISysUploadFileService;
 import com.ruoyi.system.service.ISysUserService;
 
 /**
@@ -36,11 +40,16 @@ import com.ruoyi.system.service.ISysUserService;
 @RequestMapping("/system/user/profile")
 public class SysProfileController extends BaseController
 {
+    private static final Logger log = LoggerFactory.getLogger(SysProfileController.class);
+
     @Autowired
     private ISysUserService userService;
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private ISysUploadFileService uploadFileService;
 
     /**
      * 个人信息
@@ -131,6 +140,20 @@ public class SysProfileController extends BaseController
         {
             LoginUser loginUser = getLoginUser();
             String avatar = FileUploadUtils.upload(RuoYiConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION, true);
+            
+            // 记录文件上传信息到数据库
+            try
+            {
+                SysUploadFile uploadFile = new SysUploadFile();
+                uploadFile.setUserId(loginUser.getUserId().intValue());
+                uploadFile.setPath(avatar);
+                uploadFileService.insertUploadFile(uploadFile);
+            }
+            catch (Exception e)
+            {
+                log.error("保存文件上传记录失败", e);
+            }
+            
             if (userService.updateUserAvatar(loginUser.getUserId(), avatar))
             {
                 String oldAvatar = loginUser.getUser().getAvatar();
