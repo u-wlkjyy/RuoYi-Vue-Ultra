@@ -62,6 +62,8 @@ public class SysUserController extends BaseController
     {
         startPage();
         List<SysUser> list = userService.selectUserList(user);
+        // 安全处理：清除敏感信息，防止泄露
+        list.forEach(u -> u.setSecretKey(null));
         return getDataTable(list);
     }
 
@@ -71,6 +73,8 @@ public class SysUserController extends BaseController
     public void export(HttpServletResponse response, SysUser user)
     {
         List<SysUser> list = userService.selectUserList(user);
+        // 安全处理：清除敏感信息，防止泄露
+        list.forEach(u -> u.setSecretKey(null));
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
         util.exportExcel(response, list, "用户数据");
     }
@@ -106,6 +110,8 @@ public class SysUserController extends BaseController
         {
             userService.checkUserDataScope(userId);
             SysUser sysUser = userService.selectUserById(userId);
+            // 安全处理：清除敏感信息，防止泄露
+            sysUser.setSecretKey(null);
             ajax.put(AjaxResult.DATA_TAG, sysUser);
             ajax.put("postIds", postService.selectPostListByUserId(userId));
             ajax.put("roleIds", sysUser.getRoles().stream().map(SysRole::getRoleId).collect(Collectors.toList()));
@@ -224,6 +230,8 @@ public class SysUserController extends BaseController
     {
         AjaxResult ajax = AjaxResult.success();
         SysUser user = userService.selectUserById(userId);
+        // 安全处理：清除敏感信息，防止泄露
+        user.setSecretKey(null);
         List<SysRole> roles = roleService.selectRolesByUserId(userId);
         ajax.put("user", user);
         ajax.put("roles", SysUser.isAdmin(userId) ? roles : roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));

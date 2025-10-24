@@ -74,6 +74,8 @@ public class SysLoginController
     {
         LoginUser loginUser = SecurityUtils.getLoginUser();
         SysUser user = loginUser.getUser();
+        // 安全处理：清除敏感信息，防止泄露
+        user.setSecretKey(null);
         // 角色集合
         Set<String> roles = permissionService.getRolePermission(user);
         // 权限集合

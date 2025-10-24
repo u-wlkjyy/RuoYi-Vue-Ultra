@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.constraints.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.annotation.Excel.ColumnType;
 import com.ruoyi.common.annotation.Excel.Type;
@@ -77,6 +78,7 @@ public class SysUser extends BaseEntity
     private Integer is2faEnabled;
 
     /** 2FA密钥 */
+    @JsonIgnore
     private String secretKey;
 
     /** 部门对象 */
