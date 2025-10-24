@@ -119,6 +119,12 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>net.cz88</groupId>
+            <artifactId>czdb-search</artifactId>
+            <version>1.0.2.10</version>
+        </dependency>
+
     </dependencies>
 
 </project>
