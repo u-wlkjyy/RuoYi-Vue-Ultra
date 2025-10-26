@@ -37,6 +37,13 @@ public class SysConfig extends BaseEntity
     @Excel(name = "系统内置", readConverterExp = "Y=是,N=否")
     private String configType;
 
+    /** 配置值类型 */
+    @Excel(name = "配置值类型")
+    private String configValType;
+
+    /** 元数据（JSON格式） */
+    private String metadata;
+
     public Long getConfigId()
     {
         return configId;
@@ -92,6 +99,26 @@ public class SysConfig extends BaseEntity
     {
         this.configType = configType;
     }
+
+    public String getConfigValType()
+    {
+        return configValType;
+    }
+
+    public void setConfigValType(String configValType)
+    {
+        this.configValType = configValType;
+    }
+
+    public String getMetadata()
+    {
+        return metadata;
+    }
+
+    public void setMetadata(String metadata)
+    {
+        this.metadata = metadata;
+    }
     
     @Override
     public String toString() {
@@ -101,6 +128,8 @@ public class SysConfig extends BaseEntity
             .append("configKey", getConfigKey())
             .append("configValue", getConfigValue())
             .append("configType", getConfigType())
+            .append("configValType", getConfigValType())
+            .append("metadata", getMetadata())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
